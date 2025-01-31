@@ -88,17 +88,84 @@ res.end(`server is running in port 5050 new 1`);
         //         res.status(404).json("item not found in data base");
         //     }
         // });
-        server.put('/product/:id', (req, res) => {
-            const id = parseInt(req.params.id); // Parse the id from the URL
-            const item = items.find(item => item.id === id);
+      //   server.put('/product/:id', (req, res) => {
+      //       const id = parseInt(req.params.id); // Parse the id from the URL
+      //       const item = items.find(item => item.id === id);
          
-            if (!item) {
-               return res.status(404).json({ error: 'Item not found' });
-            }
+      //       if (!item) {
+      //          return res.status(404).json({ error: 'Item not found' });
+      //       }
          
-            // Update the item's name
-            item.name = req.body.name || item.name;
+      //       // Update the item's name
+      //       item.name = req.body.name || item.name;
          
-            res.status(200).json({ message: 'Item updated successfully', item });
-         });
-       server.listen(port);
+      //       res.status(200).json({ message: 'Item updated successfully', item });
+      //    });
+      //  server.listen(port);
+
+
+
+
+
+ const express = require('express'); 
+ const server = express();  
+const port = 5000;
+       
+       server.use(express.json());
+       
+   const items = [
+           { id: 1, name: 'jeans' }
+       ];
+       
+       // Root Route
+       server.get('/', (req, res) => {
+           res.send("Server is running"); 
+       });
+       
+       // GET all products
+       server.get('/product', (req, res) => {
+           res.json(items);
+       });
+       
+       // POST a new product
+       server.post('/product', (req, res) => {
+           const newItem = req.body;
+           if (!newItem.id || !newItem.name) {
+               return res.status(400).json({ error: "ID and name are required" });
+           }
+           items.push(newItem);
+           res.status(201).json(newItem);
+       });
+       
+       // DELETE a product
+       server.delete('/product/:id', (req, res) => {
+           const itemId = parseInt(req.params.id, 10);
+           const itemIndex = items.findIndex((item) => item.id === itemId);
+           
+           if (itemIndex !== -1) {
+               const deletedItem = items.splice(itemIndex, 1);
+               res.json({ message: 'Item deleted successfully', deletedItem });
+           } else {
+               res.status(404).json({ error: 'Item not found in database' });
+           }
+       });
+       
+       // UPDATE (PUT) a product
+       server.put('/product/:id', (req, res) => {
+           const itemId = parseInt(req.params.id, 10);
+           const updatedItem = req.body;
+           
+           const itemIndex = items.findIndex((item) => item.id === itemId);
+           if (itemIndex !== -1) {
+               items[itemIndex] = { ...items[itemIndex], ...updatedItem };
+               res.json(items[itemIndex]);
+           } else {
+               res.status(404).json({ error: 'Item not found' });
+           }
+       });
+       
+       // Start the server
+       server.listen(port, () => {
+           console.log(`Server is running on http://localhost:${port}`);
+       });
+       
